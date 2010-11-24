@@ -1,0 +1,7 @@
+; $Id$ 
+name = Islandora Image Blocks
+description = Provides a random image rotator and "what's new" block for image based collections.
+package = Fedora Repository
+dependencies[] = fedora_repository
+version = 6.1dev
+core = 6.x
