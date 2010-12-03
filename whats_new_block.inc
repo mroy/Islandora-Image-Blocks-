@@ -16,7 +16,7 @@ function whats_new_block($numResults=5) {
     $appName = variable_get('islandora_solr_search_block_app_name','solr');
     
     $query = 'created_d:[* TO *]';
-    $queryURL = 'http://' . $host . ':' . $port . '/' . $appName . '/select?q='.drupal_urlencode($query).'&sort=createdate_d%20desc&start=0&rows='.$numResults;
+    $queryURL = 'http://' . $host . ':' . $port . '/' . $appName . '/select?q='.drupal_urlencode($query).'&sort=created_d%20desc&start=0&rows='.$numResults;
     
     $cache_key = 'fedora_whats_new_block_'.md5($queryURL);
     if (($output = cache_get($cache_key))===0)  
