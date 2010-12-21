@@ -81,7 +81,7 @@ $collection = new CollectionClass(variable_get('fedora_image_rotator_collection'
 }
 
 
-function _fedora_image_rotator_block_content($query = NULL) {
+function _fedora_image_rotator_block_content($query = NULL, $style = 'large') {
   module_load_include('inc', 'fedora_repository', 'api/fedora_item');
   if (variable_get('fedora_image_rotator_block_enabled',true)) {
 	  module_load_include('inc', 'fedora_repository', 'plugins/tagging_form');
@@ -89,15 +89,39 @@ function _fedora_image_rotator_block_content($query = NULL) {
 
   global $base_url;
 
-
+  $numImages = variable_get('fedora_image_rotator_block_numimages',1); 
+  if ($style == 'smallthree') { 
+    $numImages=$numImages*3;
+  }
+  
   $cache_key = 'fedora_image_rotator_block_'.md5(variable_get('fedora_image_rotator_block_numimages',1).$query);
   if (($results = cache_get($cache_key)) === 0) {
-    $results= get_random_images(variable_get('fedora_image_rotator_block_numimages',1),$query);  
+    $results= get_random_images($numImages,$query);  
     cache_set($cache_key,$results,'cache',time()+variable_get('fedora_image_blocks_cache_time',3600));
   } else
   {
     $results= $results->data;
   }
+
+  if ($style == 'smallthree') {
+    
+    $new=array();
+    $tmp=array();
+    for ($i=0;$i<count($results); $i++) 
+    {
+      if ($i != 0 && $i % 3 == 0) {
+        $new[]=$tmp;
+        $tmp=array();
+      }
+      $tmp[]=$results[$i];
+    }
+    if (count($tmp) > 0) { 
+      $new[]=$tmp;
+    }
+    $results = $new;
+    
+  }
+
 
   $content = '';
   $pager = '';
@@ -167,13 +191,33 @@ function _fedora_image_rotator_block_content($query = NULL) {
 	$content .= '<ul class="imageRotator">';
 	$pager .='<div class="imageRotator_pager"/>';
 	$i=1;
-	foreach ($results as $result) {	
-    $content .= '<li>'
- . l( '<img src="'. $base_url . '/fedora/imageapi/'. $result['pid'] .  '/'.$result['dsid'].'?op=centerscale&height=277&width=472" height="277" width="472"/>', 'fedora/repository/'. $result['pid'], array('html' => TRUE, 'alias' => TRUE))
-     .'<div class="info"><h2>'. l($result['collectionTitle'], 'fedora/repository/'.$result['collectionPid'] , array('html' => TRUE, 'alias' => TRUE))  
+  
+  $height = ($style == 'smallthree')?163:277;
+  $width  = ($style == 'smallthree')?160:472;
+  
+	foreach ($results as $res) {	
+    $content .= '<li>';
+    
+    if ($style == 'smallthree') {
+      
+      $img = '';
+      foreach ($res as $result) {
+        $img .= '<img src="'. $base_url . '/fedora/imageapi/'. $result['pid'] .  '/'.$result['dsid'].'?op=centerscale&height='.$height.'&width='.$width.'" height="'.$height.'" width="'.$width.'"/>';
+      }
+      
+    } else {
+      $result = $res;
+      $img = '<img src="'. $base_url . '/fedora/imageapi/'. $result['pid'] .  '/'.$result['dsid'].'?op=centerscale&height='.$height.'&width='.$width.'" height="'.$height.'" width="'.$width.'"/>';
+    }
+    
+    $content .= l( $img, 'fedora/repository/'. $result['pid'], array('html' => TRUE, 'alias' => TRUE));
+    if ($style == 'large') {
+      $content .='<div class="info"><h2>'. l($result['collectionTitle'], 'fedora/repository/'.$result['collectionPid'] , array('html' => TRUE, 'alias' => TRUE))  
       .'</h2><span>'.$result['title'].'</span>'
-		 . '<div class="more"><a href="'.$base_url .'/fedora/repository/'.$result['collectionPid'].'">more from this collection</a></div>'
-		 .'</div></li>';
+     . '<div class="more"><a href="'.$base_url .'/fedora/repository/'.$result['collectionPid'].'">more from this collection</a></div>'
+     .'</div>';
+    }
+    $content .= '</li>';
 		$pager .= '<a href="'.$base_url.'/fedora/repository/'.$result['pid'].'" id="page'.$i.'">'.$i.'</a>';
 		$i++;
 	}		
