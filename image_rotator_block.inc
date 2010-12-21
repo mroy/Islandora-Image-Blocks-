@@ -202,15 +202,15 @@ function _fedora_image_rotator_block_content($query = NULL, $style = 'large') {
       
       $img = '';
       foreach ($res as $result) {
-        $img .= '<img src="'. $base_url . '/fedora/imageapi/'. $result['pid'] .  '/'.$result['dsid'].'?op=centerscale&height='.$height.'&width='.$width.'" height="'.$height.'" width="'.$width.'"/>';
+        $img .= l('<img src="'. $base_url . '/fedora/imageapi/'. $result['pid'] .  '/'.$result['dsid'].'?op=centerscale&height='.$height.'&width='.$width.'" height="'.$height.'" width="'.$width.'"/>','fedora/repository/'. $result['pid'], array('html' => TRUE, 'alias' => TRUE));
       }
       
     } else {
       $result = $res;
-      $img = '<img src="'. $base_url . '/fedora/imageapi/'. $result['pid'] .  '/'.$result['dsid'].'?op=centerscale&height='.$height.'&width='.$width.'" height="'.$height.'" width="'.$width.'"/>';
+      $img = l('<img src="'. $base_url . '/fedora/imageapi/'. $result['pid'] .  '/'.$result['dsid'].'?op=centerscale&height='.$height.'&width='.$width.'" height="'.$height.'" width="'.$width.'"/>','fedora/repository/'. $result['pid'], array('html' => TRUE, 'alias' => TRUE));
     }
     
-    $content .= l( $img, 'fedora/repository/'. $result['pid'], array('html' => TRUE, 'alias' => TRUE));
+    $content .= $img ;
     if ($style == 'large') {
       $content .='<div class="info"><h2>'. l($result['collectionTitle'], 'fedora/repository/'.$result['collectionPid'] , array('html' => TRUE, 'alias' => TRUE))  
       .'</h2><span>'.$result['title'].'</span>'
